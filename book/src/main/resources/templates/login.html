@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="_csrf" th:content="${_csrf.token}"><meta name="_csrf_header" th:content="${_csrf.headerName}">
+<title>로그인</title>
+<!-- 부트스트랩, jquery -->
+<link rel="stylesheet" href="/webjars/bootstrap/4.1.1/dist/css/bootstrap.min.css">
+<script src="/webjars/jquery/2.1.3/dist/jquery.min.js"></script>
+<script src="/webjars/bootstrap/4.1.1/dist/js/bootstrap.min.js"></script>
+<!-- 공통 js -->
+<script src="/js/common.js"></script>
+<!-- 공통 css -->
+<link rel="stylesheet" type="text/css" href="/css/main.css">
+<script>
+$(document).ready(function() {
+    $("#reg_pwd").keydown(function(key) {
+        if (key.keyCode == 13) {
+        	member_reg();
+            key.preventDefault();
+        }
+    });
+});
+
+//회원가입 버튼 눌렀을때(모달창 띄우기)
+ function reg_show(){
+	 $('#layerpop_reg').modal("show");
+}
+
+//회원가입 처리
+function member_reg(){
+	if($("#reg_id").val() == ""){
+		alert("아이디를 입력해주세요");
+		return;
+	}
+	
+	if($("#reg_pwd").val() == ""){
+		alert("패스워드를입력해주세요");
+		return;
+	}
+	
+	var params = $('#reg_form').serializeObject();
+	$.ajax({
+		type : "POST",
+		url : "/member_reg",
+		contentType: 'application/json',
+		data : JSON.stringify(params),
+		success : function(data){
+			if(data == 1){
+				 $('#layerpop_reg').modal("hide");
+				 alert("회원가입이 완료되었습니다.");
+			}else if(data == -100){
+				alert("이미 등록된 아이디입니다.")
+			}
+		},
+		error : function(request,status,error){
+			alert("회원가입 실패");
+			//alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		}
+	});
+}
+</script>
+</head>
+<body>
+<div class="container login-container">
+	<div class="row">
+		<div class="col-md-6 login-form-1">
+			<h3>로그인</h3>
+			<form id="login-form" method="POST" th:action="@{/login}">
+				<div class="form-group">
+					<input type="text" name="username" class="form-control" placeholder="ID" value="" />
+				</div>
+				<div class="form-group">
+					<input type="password" name="password" class="form-control" placeholder="비밀번호" value="" />
+				</div>
+				<div align="center" th:if="${param.error}">
+		            <p style="font-size: 20; color: #FF1C19;">ID,비밀번호를 확인하세요</p>
+		        </div>
+				<div class="form-group">
+					<input type="submit" class="btnSubmit" value="로그인" />
+				</div>
+				<div class="form-group">
+					<a href="javascript:reg_show()" class="ForgetPwd">회원가입</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<!-- 회원가입 모달 레이어 팝업 -->
+<div class="modal fade" id="layerpop_reg" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<!-- header -->
+			<div class="modal-header">
+				<h4 class="modal-title">회원가입</h4>
+				<!-- 닫기(x) 버튼 -->
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<!-- body -->
+			<div class="modal-body">
+				<div class="container">
+					<form id="reg_form" name="reg_form">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="아이디를 입력하세요"  name="memberId" id="reg_id"/>
+						</div>
+						<div class="form-group">
+							<input type="password" class="form-control" placeholder="비밀번호를 입력하세요" name="pwd" id="reg_pwd"/>
+						</div>
+						<div class="form-group">
+							<input type="button" class="btnSubmit" onclick="member_reg()" value="가입하기"/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
